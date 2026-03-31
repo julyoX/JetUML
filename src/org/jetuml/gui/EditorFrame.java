@@ -421,30 +421,9 @@ public class EditorFrame extends BorderPane implements BooleanPreferenceChangeHa
 		return (DiagramTab) tab;
 	}
 
-	private void close() 
-	{
-		DiagramTab diagramTab = getSelectedDiagramTab();
-		// we only want to check attempts to close a frame
-		if( diagramTab.hasUnsavedChanges() ) 
-		{
-			// ask user if it is ok to close
-			Alert alert = new Alert(AlertType.CONFIRMATION, RESOURCES.getString("dialog.close.ok"), ButtonType.YES, ButtonType.NO);
-			alert.initOwner(aMainStage);
-			alert.setTitle(RESOURCES.getString("dialog.close.title"));
-			alert.setHeaderText(RESOURCES.getString("dialog.close.title"));
-			alert.showAndWait();
-
-			if(alert.getResult() == ButtonType.YES) 
-			{
-				removeGraphFrameFromTabbedPane(diagramTab);
-			}
-			return;
-		} 
-		else 
-		{
-			removeGraphFrameFromTabbedPane(diagramTab);
-		}
-	}
+	private void close() {
+    close(getSelectedDiagramTab());
+}
 	
 	/**
 	 * If a user confirms that they want to close their modified graph, this method
@@ -452,31 +431,14 @@ public class EditorFrame extends BorderPane implements BooleanPreferenceChangeHa
 	 * 
 	 * @param pDiagramTab The current Tab that one wishes to close.
 	 */
-	public void close(DiagramTab pDiagramTab) 
-	{
-		if(pDiagramTab.hasUnsavedChanges()) 
-		{
-			Alert alert = new Alert(AlertType.CONFIRMATION, RESOURCES.getString("dialog.close.ok"), ButtonType.YES, ButtonType.NO);
-			alert.initOwner(aMainStage);
-			alert.setTitle(RESOURCES.getString("dialog.close.title"));
-			alert.setHeaderText(RESOURCES.getString("dialog.close.title"));
-			alert.showAndWait();
-
-			if(alert.getResult() == ButtonType.YES) 
-			{
-				removeGraphFrameFromTabbedPane(pDiagramTab);
-			}
-		}
-		else
-		{
-			removeGraphFrameFromTabbedPane(pDiagramTab);
-		}
-	}
-	
-	private void duplicate() 
-	{
-		insertGraphFrameIntoTabbedPane(new DiagramTab(getSelectedDiagramTab().getDiagram().duplicate()));
-	}
+	public void close(DiagramTab pTab) {
+    if (pTab.hasUnsavedChanges()) {
+        if (!confirmClose(pTab)) {
+            return; // Usuário desistiu de fechar
+        }
+    }
+    removeGraphFrameFromTabbedPane(pTab);
+}
 	
 	
 
