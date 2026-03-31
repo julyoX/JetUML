@@ -719,31 +719,47 @@ StringPreferenceChangeHandler
 	private void mouseDragged(MouseEvent pEvent)
 	{
 		Point mousePoint = getMousePoint(pEvent);
-		
-		// The second condition in the if is necessary in the case where a single 
-		// element is selected with the Ctrl button is down, which immediately deselects it.
-		if(aDragMode == DragMode.DRAG_MOVE && !aSelected.isEmpty() ) 
-		{	
-			// The local variable dragDirection cannot be inlined 
-			// because moveSelection changes aLastMousePoint
-			Direction dragDirection = Direction.fromLine(aLastMousePoint, mousePoint);
-			moveSelection(mousePoint);
-			aHandler.interactionTo(aDiagramBuilder.renderer().getBoundsNotIncludingParents(aSelected), dragDirection);
-		}
-		else if(aDragMode == DragMode.DRAG_LASSO)
+
+		if (aDragMode == DragMode.DRAG_MOVE && !aSelected.isEmpty())
 		{
-			aLastMousePoint = mousePoint;
-			if( !pEvent.isControlDown() )
-			{
-				clearSelection();
-			}
-			activateLasso();
+			handleMoveDrag(mousePoint);
 		}
-		else if(aDragMode == DragMode.DRAG_RUBBERBAND)
+		else if (aDragMode == DragMode.DRAG_LASSO)
 		{
-			aLastMousePoint = mousePoint;
-			activateRubberband(computeRubberband());
+			handleLassoDrag(pEvent, mousePoint);
 		}
+		else if (aDragMode == DragMode.DRAG_RUBBERBAND)
+		{
+			handleRubberbandDrag(mousePoint);
+		}
+	}
+
+	private void handleMoveDrag(Point mousePoint)
+	{
+		Direction dragDirection = Direction.fromLine(aLastMousePoint, mousePoint);
+		moveSelection(mousePoint);
+		aHandler.interactionTo(
+			aDiagramBuilder.renderer().getBoundsNotIncludingParents(aSelected),
+			dragDirection
+		);
+	}
+
+	private void handleLassoDrag(MouseEvent pEvent, Point mousePoint)
+	{
+		aLastMousePoint = mousePoint;
+
+		if (!pEvent.isControlDown())
+		{
+			clearSelection();
+		}
+
+		activateLasso();
+	}
+
+	private void handleRubberbandDrag(Point mousePoint)
+	{
+		aLastMousePoint = mousePoint;
+		activateRubberband(computeRubberband());
 	}
 	
 	// TODO, include edges between selected nodes in the bounds check.
